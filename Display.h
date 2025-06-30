@@ -33,31 +33,31 @@ void busyCallback(const void* p) { display_callback(); }
 #define DISPLAY_BLACK GxEPD_BLACK
 #define DISPLAY_WHITE GxEPD_WHITE
 
-#elif DISPLAY == ADAFRUIT_TFT
+#elif DISPLAY_TYPE == ADAFRUIT_TFT
     // t-deck
     #include <Adafruit_ST7789.h>
     #define DISPLAY_WHITE ST77XX_WHITE
     #define DISPLAY_BLACK ST77XX_BLACK
 
-#elif DISPLAY == TFT
+#elif DISPLAY_TYPE == TFT
     // t114
     #include "src/display/ST7789.h"
     #define DISPLAY_WHITE ST77XX_WHITE
     #define DISPLAY_BLACK ST77XX_BLACK
     #define COLOR565(r, g, b) (((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3))
 
-#elif DISPLAY == MONO_OLED
+#elif DISPLAY_TYPE == MONO_OLED
     // tbeam_s
     #include <Adafruit_SH110X.h>
     #define DISPLAY_WHITE SH110X_WHITE
     #define DISPLAY_BLACK SH110X_BLACK
 #endif
 
-#if DISPLAY == EINK_BW
+#if DISPLAY_TYPE == EINK_BW
 // use GxEPD2 because adafruit EPD support for partial refresh is bad
 #include <GxEPD2_BW.h>
 #include <SPI.h>
-#elif DISPLAY == EINK_3C
+#elif DISPLAY_TYPE == EINK_3C
 #include <GxEPD2_3C.h>
 #include <SPI.h>
 #endif
