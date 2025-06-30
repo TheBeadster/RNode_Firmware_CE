@@ -13,6 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#pragma once
+
 #include <Adafruit_GFX.h>
 
 #define DISP_W 128
@@ -1070,7 +1072,11 @@ void update_disp_area() {
 void display_recondition() {
   #if DISPLAY == OLED
     for (uint8_t iy = 0; iy < disp_area.height(); iy++) {
-      unsigned char rand_seg [] = {random(0xFF),random(0xFF),random(0xFF),random(0xFF),random(0xFF),random(0xFF),random(0xFF),random(0xFF)};
+      uint8_t rand_seg[] = {
+        static_cast<uint8_t>(random(256)), static_cast<uint8_t>(random(256)),
+        static_cast<uint8_t>(random(256)), static_cast<uint8_t>(random(256)),
+        static_cast<uint8_t>(random(256)), static_cast<uint8_t>(random(256)),
+        static_cast<uint8_t>(random(256)), static_cast<uint8_t>(random(256))};
       stat_area.drawBitmap(0, iy, rand_seg, 64, 1, DISPLAY_WHITE, DISPLAY_BLACK);
       disp_area.drawBitmap(0, iy, rand_seg, 64, 1, DISPLAY_WHITE, DISPLAY_BLACK);
     }
