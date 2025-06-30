@@ -10,6 +10,8 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
+#pragma once
+
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -33,19 +35,19 @@
   BLEUart SerialBT(BLE_RX_BUF);
   BLEDis  bledis;
   BLEBas  blebas;
-  bool SerialBT_init = false;
+  extern bool SerialBT_init;
 #endif
 
 #define BT_PAIRING_TIMEOUT 35000
 #define BLE_FLUSH_TIMEOUT 20
-uint32_t bt_pairing_started = 0;
+extern uint32_t bt_pairing_started;
 
 #define BT_DEV_ADDR_LEN 6
 #define BT_DEV_HASH_LEN 16
-uint8_t dev_bt_mac[BT_DEV_ADDR_LEN];
-char bt_da[BT_DEV_ADDR_LEN];
-char bt_dh[BT_DEV_HASH_LEN];
-char bt_devname[11];
+extern uint8_t dev_bt_mac[BT_DEV_ADDR_LEN];
+extern char bt_da[BT_DEV_ADDR_LEN];
+extern char bt_dh[BT_DEV_HASH_LEN];
+extern char bt_devname[11];
 
 #if MCU_VARIANT == MCU_ESP32
   #if HAS_BLUETOOTH == true
