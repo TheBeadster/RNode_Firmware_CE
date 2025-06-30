@@ -158,6 +158,11 @@ firmware-heltec_t114:
 firmware-heltec_t114_gps:
 	arduino-cli compile --log --fqbn Heltec_nRF52:Heltec_nRF52:HT-n5262 -e --build-property "build.partitions=no_ota" --build-property "upload.maximum_size=2097152" --build-property "compiler.cpp.extra_flags=\"-DBOARD_MODEL=0x3C\" \"-DBOARD_VARIANT=0xCB\""
 
+
+firmware-heltec_meshpocket:
+	arduino-cli compile --log --fqbn Heltec_nRF52:Heltec_nRF52:HT-n5262-e213 -e --build-property "build.partitions=no_ota" --build-property "upload.maximum_size=2097152" --build-property "compiler.cpp.extra_flags=\"-DBOARD_MODEL=0x46\""
+
+
 upload-tbeam:
 	arduino-cli upload -p $(or $(port), /dev/ttyACM0) --fqbn esp32:esp32:t-beam
 	@sleep 1

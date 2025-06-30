@@ -16,6 +16,8 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include "Utilities.h"
+#define BOARD_MODEL BOARD_HELTEC_MESHP   // MeshPocket
+#include "Boards.h"
 
 #if MCU_VARIANT == MCU_NRF52
   #if BOARD_MODEL == BOARD_RAK4631 || BOARD_MODEL == BOARD_OPENCOM_XL
@@ -59,7 +61,13 @@
 // INTERFACE_SPI is only required on NRF52 platforms, as the SPI pins are set in the class constructor and not by a setter method.
 // Even if custom SPI interfaces are not needed, the array must exist to prevent compilation errors.
 #define INTERFACE_SPI
-SPIClass interface_spi[1];
+// MeshPocket has only one radio → use SPIM0 and the pins you already defined
+SPIClass interface_spi[1] = {
+    SPIClass(NRF_SPIM0,               // hardware block
+             interface_pins[0][3],    // MISO  → 23
+             interface_pins[0][1],    // SCK   → 19
+             interface_pins[0][2])    // MOSI  → 22
+};
 #endif
 
 FIFOBuffer serialFIFO;
