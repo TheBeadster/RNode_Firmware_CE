@@ -1748,7 +1748,7 @@ void sleep_now() {
           display.print("Sleeping...");
           display.setCursor(8,59 );
           display.setTextSize(1);
-          display.print("User Button");
+          display.print("User Button operation");
           display.setCursor(8,68 );
           display.print("   1 sec : Bluetooth on/off");
           display.setCursor(8,78 );
