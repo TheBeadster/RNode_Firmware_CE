@@ -1756,14 +1756,11 @@ void sleep_now() {
           display.setCursor(8,88 );
           display.print("> 8 secs : Sleep");
           display.display(false);
-          display.hibernate();
           display.setFont(SMALL_FONT);
           display.setTextSize(2);
           display.setCursor(5, 100);
           display.printf("%02X%02X", bt_dh[14], bt_dh[15]);   // last two bytes of the BLE MAC
-//          display.setPartialWindow(0, 0, DISP_W, DISP_H);
-
-
+          display.hibernate();
         // BD addin telling sx1262 to deep sleep
           npset(0,0,0);
           digitalWrite(PIN_VEXT_EN, LOW);
@@ -1813,7 +1810,7 @@ void button_event(uint8_t event, unsigned long duration) {
           sleep_now();
         #endif
       } else {
-                //BD
+        //BD
         Serial.print("Button : Bluetooth powered ");
         //BD
         #if HAS_BLUETOOTH || HAS_BLE
