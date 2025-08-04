@@ -12,7 +12,9 @@
 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#define BOARD_MODEL BOARD_HELTEC_MESHP   // MeshPocket board ID
+//#define BOARD_MODEL BOARD_HELTEC_MESHP
+//#define BOARD_MODEL BOARD_HELTEC_MESHP
+#include "board_config.h"
 
 #include "Interfaces.h"
 #include "ROM.h"
@@ -119,10 +121,11 @@
   #define MODEL_C7            0xC7 // Heltec Mesh Node T114, 863-928 MHz
   #define MODEL_CB            0xCB // Heltec Mesh Node T114, 863-928 MHz + GPS
 
-  #define PRODUCT_HELTEC_MESHP    0xC3  // Heltec MeshPocket
-  #define BOARD_HELTEC_MESHP  0x46 // MeshPocket board ID
-  #define MODEL_C7            0xC7 // 863-928 MHz
-
+  #define PRODUCT_HELTEC_MESHP 0xD2 // Heltec Mesh Node MeshPocket with a T114
+  #define BOARD_HELTEC_MESHP  0x46
+  #define MODEL_CD            0xCD // Heltec Mesh Node MeshPocket, 470-510 MHz
+  #define MODEL_CE            0xCE // Heltec Mesh Node MeshPocket, 863-928 MHz
+ 
 
   #define PRODUCT_TECHO       0x15 // LilyGO T-Echo devices
   #define BOARD_TECHO         0x44
@@ -156,6 +159,7 @@
   #endif
 
   #define HAS_DISPLAY false
+  
   #define HAS_BLUETOOTH false
   #define HAS_BLE false
   #define HAS_TCXO false
@@ -222,7 +226,7 @@
 
     #elif BOARD_MODEL == BOARD_TBEAM
       #define HAS_DISPLAY true
-      #define DISPLAY_TYPE OLED
+      #define DISPLAY OLED
       #define HAS_PMU true
       #define HAS_BLUETOOTH true
       #define HAS_CONSOLE true
@@ -326,7 +330,7 @@
 
     #elif BOARD_MODEL == BOARD_LORA32_V1_0
       #define HAS_DISPLAY true
-      #define DISPLAY_TYPE OLED
+      #define DISPLAY OLED
       #define HAS_BLUETOOTH true
       #define HAS_CONSOLE true
       #define HAS_EEPROM true
@@ -369,7 +373,7 @@
 
     #elif BOARD_MODEL == BOARD_LORA32_V2_0
       #define HAS_DISPLAY true
-      #define DISPLAY_TYPE OLED
+      #define DISPLAY OLED
       #define HAS_BLUETOOTH true
       #define HAS_CONSOLE true
       #define HAS_EEPROM true
@@ -413,7 +417,7 @@
 
     #elif BOARD_MODEL == BOARD_LORA32_V2_1
       #define HAS_DISPLAY true
-      #define DISPLAY_TYPE OLED
+      #define DISPLAY OLED
       #define HAS_BLUETOOTH true
       #define HAS_PMU true
       #define HAS_NP true
@@ -486,7 +490,7 @@
 
     #elif BOARD_MODEL == BOARD_HELTEC32_V2
       #define HAS_DISPLAY true
-      #define DISPLAY_TYPE OLED
+      #define DISPLAY OLED
       #define HAS_BLUETOOTH true
       #define HAS_CONSOLE true
       #define HAS_EEPROM true
@@ -534,7 +538,7 @@
     #elif BOARD_MODEL == BOARD_HELTEC32_V3
       #define IS_ESP32S3 true
       #define HAS_DISPLAY true
-      #define DISPLAY_TYPE OLED
+      #define DISPLAY OLED
       #define HAS_BLUETOOTH false
       #define HAS_BLE true
       #define HAS_PMU true
@@ -594,7 +598,7 @@
       #define HAS_EEPROM true
       #define HAS_INPUT true
       #define HAS_SLEEP true
-      #define DISPLAY_TYPE EINK_BW
+      #define DISPLAY EINK_BW
       #define DISPLAY_SCALE_OVERRIDE true
       #define DISPLAY_SCALE 1.90625
       #define DISPLAY_MODEL GxEPD2_213_BN
@@ -646,7 +650,7 @@
 
     #elif BOARD_MODEL == BOARD_RNODE_NG_20
       #define HAS_DISPLAY true
-      #define DISPLAY_TYPE OLED
+      #define DISPLAY OLED
       #define HAS_BLUETOOTH true
       #define HAS_NP true
       #define HAS_CONSOLE true
@@ -694,7 +698,7 @@
 
     #elif BOARD_MODEL == BOARD_RNODE_NG_21
       #define HAS_DISPLAY true
-      #define DISPLAY_TYPE OLED
+      #define DISPLAY OLED
       #define HAS_BLUETOOTH true
       #define HAS_CONSOLE true
       #define HAS_PMU true
@@ -747,7 +751,7 @@
     #elif BOARD_MODEL == BOARD_T3S3
       #define IS_ESP32S3 true
       #define HAS_DISPLAY true
-      #define DISPLAY_TYPE OLED
+      #define DISPLAY OLED
       #define HAS_CONSOLE true
       #define HAS_BLUETOOTH false
       #define HAS_BLE true
@@ -864,7 +868,7 @@
     #elif BOARD_MODEL == BOARD_TDECK
       #define IS_ESP32S3 true
       #define HAS_DISPLAY false
-      #define DISPLAY_TYPE TFT // to be tested...
+      #define DISPLAY TFT // to be tested...
       #define HAS_CONSOLE false
       #define HAS_BLUETOOTH false
       #define HAS_BLE true
@@ -935,7 +939,7 @@
       #define OCP_TUNED 0x38
 
       #define HAS_DISPLAY true
-      #define DISPLAY_TYPE MONO_OLED
+      #define DISPLAY MONO_OLED
       #define HAS_CONSOLE true
       #define HAS_BLUETOOTH false
       #define HAS_BLE true
@@ -999,7 +1003,7 @@
 
     #elif BOARD_MODEL == BOARD_E22_ESP32
       #define HAS_DISPLAY true
-      #define DISPLAY_TYPE OLED
+      #define DISPLAY OLED
       // currently there is only support for using one Bluetooth type,
       // Bluetooth has been chosen over BLE as it is less experimental
       #define HAS_BLUETOOTH true
@@ -1041,7 +1045,7 @@
       #define IS_ESP32S3 true
 
       #define HAS_DISPLAY true
-      #define DISPLAY_TYPE OLED
+      #define DISPLAY OLED
       //#define HAS_CONSOLE true
       #define HAS_BLUETOOTH false
       #define HAS_BLE true
@@ -1127,7 +1131,7 @@
       #define HAS_EEPROM false
       #define HAS_SD false
       #define HAS_DISPLAY true
-      #define DISPLAY_TYPE EINK_BW
+      #define DISPLAY EINK_BW
       #define DISPLAY_MODEL GxEPD2_154_D67
       #define BLE_MANUFACTURER "LilyGO"
       #define BLE_MODEL "T-Echo"
@@ -1244,7 +1248,7 @@
       };
       #elif BOARD_VARIANT == MODEL_13 || BOARD_VARIANT == MODEL_14 || BOARD_VARIANT == MODEL_21
       #define HAS_DISPLAY true
-      #define DISPLAY_TYPE EINK_BW
+      #define DISPLAY EINK_BW
       #define DISPLAY_SCALE_OVERRIDE true
       #define DISPLAY_SCALE 1.90625
       #define DISPLAY_MODEL GxEPD2_213_BN
@@ -1313,10 +1317,8 @@
 
     #elif BOARD_MODEL == BOARD_HELTEC_T114
       #define HAS_EEPROM false
-      #define EEPROM_SIZE    296       // RNode expects these even if HAS_EEPROM false
-      #define EEPROM_OFFSET   EEPROM_SIZE-EEPROM_RESERVED
       #define HAS_DISPLAY true
-      #define DISPLAY_TYPE TFT
+      #define DISPLAY TFT
       #define DISPLAY_SCALE_OVERRIDE true
       #define DISPLAY_SCALE 2
       #define HAS_BLUETOOTH false
@@ -1393,54 +1395,91 @@
       };
 
       #if BOARD_VARIANT == MODEL_CB
-      #define HAS_GPS true
-      #define GPS_BAUD_RATE 9600
-      #define PIN_GPS_RX 37
-      #define PIN_GPS_TX 39 
+        #define HAS_GPS true
+        #define GPS_BAUD_RATE 9600
+        #define PIN_GPS_RX 37
+        #define PIN_GPS_TX 39 
       #endif
 
-  #elif BOARD_MODEL == BOARD_HELTEC_MESHP
-    #define HAS_EEPROM false
-    #define EEPROM_SIZE    296       // RNode expects these even if HAS_EEPROM false
-    #define EEPROM_OFFSET   EEPROM_SIZE-EEPROM_RESERVED
-    #undef  HAS_DISPLAY          // forget the default
-    #define HAS_DISPLAY      true
-    #define DISPLAY_TYPE     EINK_BW
-    #define DISPLAY_SCALE_OVERRIDE true
-    #define DISPLAY_SCALE    1.90        // tweak if font looks off
-    #define DISPLAY_MODEL    GxEPD2_213_B73
+    #elif BOARD_MODEL == BOARD_HELTEC_MESHP
+       
+      #define HAS_EEPROM false
+      #define HAS_DISPLAY true
+      #define DISPLAY EINK_BW
+      #define DISPLAY_SCALE_OVERRIDE true
+      #define DISPLAY_SCALE 1.90625
+      #define DISPLAY_MODEL GxEPD2_213_B74   //meshtastic uses B74  
+      #define HAS_BLUETOOTH false
+      #define HAS_BLE true
+      #define HAS_CONSOLE false
+      #define HAS_PMU true
+      #define HAS_NP true
+      #define HAS_SD false
+      #define HAS_TCXO true
+      #define HAS_BUSY true
+      #define HAS_INPUT true
+      #define HAS_SLEEP true
+      #define CONFIG_UART_BUFFER_SIZE 6144
+      #define CONFIG_QUEUE_SIZE 6144
+      #define CONFIG_QUEUE_MAX_LENGTH 200
+      #define EEPROM_SIZE 296
+      #define EEPROM_OFFSET EEPROM_SIZE-EEPROM_RESERVED
+      #define BLE_MANUFACTURER "Heltec"
+      #define BLE_MODEL "T114"
 
-    const int pin_disp_cs    = 12;
-    const int pin_disp_dc    = 11;
-    const int pin_disp_reset = 10;
-    const int pin_disp_busy  = 9;
-    const int pin_disp_en    = 20;        // gate Q1
+      #define PIN_T114_ADC_EN 6
+      #define PIN_VEXT_EN 21
 
-    #define INTERFACE_COUNT 1
-    const uint8_t  interfaces[INTERFACE_COUNT]      = {SX1262};
-    const bool     interface_cfg[INTERFACE_COUNT][3]= {{false,true,true}};
-    const int8_t   interface_pins[INTERFACE_COUNT][10] = {
-        /* SX1262 */ {24, 19, 22, 23, 17, 20, 25, -1, -1, -1 }
-    };
+      // LED
+      #define LED_T114_GREEN 13
+      #define PIN_T114_LED 35
+      #define NP_M 1
+      const int pin_np = PIN_T114_LED;
 
-    const int pin_led_rx = 35;
-    const int pin_led_tx = 35;
-    const int pin_btn_usr1 = 42;
-// -------------------------------------------------------------------------
-// MeshPocket – user LED is the green one on GPIO35 (LOW = off, HIGH = on)
-// -------------------------------------------------------------------------
-#ifndef LED_ON 
-  #define LED_ON HIGH 
-#endif 
-#ifndef LED_OFF 
-  #define LED_OFF LOW 
-#endif
-inline void led_rx_on()  { digitalWrite(pin_led_rx, LED_ON);  }
-inline void led_rx_off() { digitalWrite(pin_led_rx, LED_OFF); }
-inline void led_tx_on()  { digitalWrite(pin_led_tx, LED_ON);  }
-inline void led_tx_off() { digitalWrite(pin_led_tx, LED_OFF); }
-inline void led_id_on()  { }          // MeshPocket has no separate “ID” LED
-inline void led_id_off() { }
+      // pins for buttons on Heltec Mesh Pocket
+      const int pin_btn_usr1 = 42;
+
+      // no LED on Mesh pocket
+      const int pin_led_rx = 35;
+      const int pin_led_tx = 35;
+
+      // pins for LCMEN21R13ECC1  display using SSD1680 driver on Heltec Mesh Pocket
+      const int pin_disp_cs    = 24;
+      const int pin_disp_dc    = 31;
+      const int pin_disp_reset = 36;
+      const int pin_disp_busy  = 38;
+      const int pin_disp_sck   = 22;
+      const int pin_disp_mosi  = 20;           
+      const int pin_disp_miso  = -1;
+   //BD the eink is connected direct to the 3v3 line it sleeps via a SPI command
+      const int pin_disp_en = -1;  
+    
+      #define INTERFACE_COUNT 1
+
+      const uint8_t interfaces[INTERFACE_COUNT] = {SX1262};
+      const bool interface_cfg[INTERFACE_COUNT][3] = { 
+                    // SX1262
+          {
+              false, // DEFAULT_SPI
+              true, // HAS_TCXO
+              true  // DIO2_AS_RF_SWITCH
+          }
+      };
+      const int8_t interface_pins[INTERFACE_COUNT][10] = { 
+                  // SX1262
+          {
+              26, // pin_ss
+              4, //22,       //4 // pin_sclk      // the schatic shos pin 4 but meshtastic code uses pin 22 shared with eink display
+              5, //20,     // 5, // pin_mosi   // the schatic shos pin 5 but meshtastic code uses pin 20 shared with eink display
+              41, // pin_miso
+              15, // pin_busy
+              16, // pin_dio
+              12 // pin_reset
+              -1, // pin_txen
+              -1, // pin_rxen
+              -1  // pin_tcxo_enable
+          }
+      };
 
 
     #else

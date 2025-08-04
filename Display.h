@@ -12,9 +12,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-#pragma once
-
+#include "board_config.h"
 #include <Adafruit_GFX.h>
 
 #define DISP_W 128
@@ -28,36 +26,38 @@
 
 #elif DISPLAY == EINK_BW || DISPLAY == EINK_3C
 void (*display_callback)();
-void display_add_callback(void (*callback)()) { display_callback = callback; }
+void display_add_callback(void (*callback)()) { 
+  display_callback = callback; }
+
 void busyCallback(const void* p) { display_callback(); }
 #define DISPLAY_BLACK GxEPD_BLACK
 #define DISPLAY_WHITE GxEPD_WHITE
 
-#elif DISPLAY_TYPE == ADAFRUIT_TFT
+#elif DISPLAY == ADAFRUIT_TFT
     // t-deck
     #include <Adafruit_ST7789.h>
     #define DISPLAY_WHITE ST77XX_WHITE
     #define DISPLAY_BLACK ST77XX_BLACK
 
-#elif DISPLAY_TYPE == TFT
+#elif DISPLAY == TFT
     // t114
     #include "src/display/ST7789.h"
     #define DISPLAY_WHITE ST77XX_WHITE
     #define DISPLAY_BLACK ST77XX_BLACK
     #define COLOR565(r, g, b) (((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3))
 
-#elif DISPLAY_TYPE == MONO_OLED
+#elif DISPLAY == MONO_OLED
     // tbeam_s
     #include <Adafruit_SH110X.h>
     #define DISPLAY_WHITE SH110X_WHITE
     #define DISPLAY_BLACK SH110X_BLACK
 #endif
 
-#if DISPLAY_TYPE == EINK_BW
+#if DISPLAY == EINK_BW
 // use GxEPD2 because adafruit EPD support for partial refresh is bad
 #include <GxEPD2_BW.h>
 #include <SPI.h>
-#elif DISPLAY_TYPE == EINK_3C
+#elif DISPLAY == EINK_3C
 #include <GxEPD2_3C.h>
 #include <SPI.h>
 #endif
@@ -137,6 +137,13 @@ void busyCallback(const void* p) { display_callback(); }
   #define SCL_OLED 6
   #define SDA_OLED 5
   #define DISP_CUSTOM_ADDR true
+  //BD
+#elif BOARD_MODEL == BOARD_HELTEC_MESHP
+  SPIClass displaySPI = SPIClass(NRF_SPIM1, pin_disp_miso, pin_disp_sck, pin_disp_mosi);  
+  #define DISP_W 250
+  #define DISP_H 122
+  #define DISP_ADDR -1
+  //BD
 #else
   #define DISP_RST -1
   #define DISP_ADDR 0x3C
@@ -147,7 +154,7 @@ void busyCallback(const void* p) { display_callback(); }
 
 #include "Graphics.h"
 
-#if BOARD_MODEL == BOARD_RAK4631 || BOARD_MODEL == BOARD_OPENCOM_XL || BOARD_MODEL == BOARD_H_W_PAPER
+#if BOARD_MODEL == BOARD_RAK4631 || BOARD_MODEL == BOARD_OPENCOM_XL || BOARD_MODEL == BOARD_H_W_PAPER 
   #if DISPLAY == EINK_BW
   GxEPD2_BW<DISPLAY_MODEL, DISPLAY_MODEL::HEIGHT> display(DISPLAY_MODEL(pin_disp_cs, pin_disp_dc, pin_disp_reset, pin_disp_busy));
   float disp_target_fps = 0.5;
@@ -161,6 +168,20 @@ void busyCallback(const void* p) { display_callback(); }
   uint32_t last_epd_full_refresh = 0;
   #define REFRESH_PERIOD 600000 // 10 minutes in ms
   #endif
+
+//BD
+#elif BOARD_MODEL == BOARD_HELTEC_MESHP
+  GxEPD2_BW<DISPLAY_MODEL, DISPLAY_MODEL::HEIGHT> display(DISPLAY_MODEL(pin_disp_cs, pin_disp_dc, pin_disp_reset, pin_disp_busy));
+  float disp_target_fps = 0.5;
+  uint32_t last_epd_refresh = 1;
+  uint32_t last_epd_full_refresh = 1;
+  #define REFRESH_PERIOD 300000 // 5 minutes in ms
+  // for screen refresh to stop greying out
+  static uint8_t partials_since_full = 0;
+  const uint8_t PARTIAL_LIMIT = 5;     // matches GD recommendation
+//BD
+
+
 #elif BOARD_MODEL == BOARD_TECHO
 GxEPD2_BW<DISPLAY_MODEL, DISPLAY_MODEL::HEIGHT> display(DISPLAY_MODEL(pin_disp_cs, pin_disp_dc, pin_disp_reset, pin_disp_busy));
 float disp_target_fps = 0.2;
@@ -310,7 +331,7 @@ uint8_t display_contrast = 0x00;
     }
     level = value;
   }
-#elif BOARD_MODEL == BOARD_OPENCOM_XL || BOARD_MODEL == BOARD_RAK4631 || BOARD_MODEL == BOARD_H_W_PAPER
+#elif BOARD_MODEL == BOARD_OPENCOM_XL || BOARD_MODEL == BOARD_RAK4631 || BOARD_MODEL == BOARD_H_W_PAPER || BOARD_MODEL == BOARD_HELTEC_MESHP
   // no backlight on these displays
   void set_contrast (void* display, uint8_t contrast) {};
 #else
@@ -366,11 +387,45 @@ bool display_init() {
       display.setPartialWindow(0, 0, DISP_W, DISP_H);
 
       display.epd2.setBusyCallback(busyCallback);
+
+
     #elif BOARD_MODEL == BOARD_HELTEC_T114
       pinMode(PIN_T114_TFT_EN, OUTPUT);
       digitalWrite(PIN_T114_TFT_EN, LOW);
+
+     //BD
+    #elif BOARD_MODEL == BOARD_HELTEC_MESHP
+
+      // the SSD1680 uses SPI command to wake and sleep
+    
+      displaySPI.begin(); 
+      // force the corrct SPI pins, the radiocpp  _spiModem->begin(); locks them so they cant be changed   
+      NRF_SPIM1->ENABLE = 0; // disable SPIM1 
+      NRF_SPIM1->PSEL.SCK = 22; 
+      NRF_SPIM1->PSEL.MOSI = 20; 
+      NRF_SPIM1->PSEL.MISO = (1u<<31); // disconnect 
+      //NRF_SPIM1->ENABLE = 7; // SPIM_ENABLE_ENABLE_Enabled
+
+      pinMode(pin_disp_cs, OUTPUT);
+      digitalWrite(pin_disp_cs, HIGH); 
+      display.init(0,      // debug baud — must be >0!
+                true,        // initial full update
+                10,          // reset pulse width (ms)
+                true,        // pull-down RST while idle
+                displaySPI,  
+                SPISettings(4000000, MSBFIRST, SPI_MODE0) 
+                );
+      // without these screen cmd's the screen didnt update, need to find out why
+      display.display();
+      delay(10);                 // tiny buffer
+      digitalWrite(pin_disp_cs, HIGH);
+      display.setFullWindow();
+      display.setRotation(0);
+      display.setPartialWindow(0, 0, DISP_W, DISP_H);
+        //BD
     #elif BOARD_MODEL == BOARD_TECHO
       display.init(0, true, 10, false, displaySPI, SPISettings(4000000, MSBFIRST, SPI_MODE0));
+   
       display.setPartialWindow(0, 0, DISP_W, DISP_H);
       display.epd2.setBusyCallback(busyCallback);
       #if HAS_BACKLIGHT
@@ -492,6 +547,9 @@ bool display_init() {
           #elif BOARD_MODEL == BOARD_TDECK
             disp_mode = DISP_MODE_PORTRAIT;
             display.setRotation(3);
+          #elif BOARD_MODEL == BOARD_HELTEC_MESHP
+            disp_mode = DISP_MODE_LANDSCAPE;
+            display.setRotation(3);
           #else
             disp_mode = DISP_MODE_PORTRAIT;
             display.setRotation(3);
@@ -537,12 +595,12 @@ bool display_init() {
         pinMode(PIN_T114_TFT_BLGT, OUTPUT);
         digitalWrite(PIN_T114_TFT_BLGT, LOW);
       #endif
-
       return true;
     }
   #else
     return false;
   #endif
+
 }
 
 // Draws a line on the screen
@@ -870,6 +928,7 @@ void draw_stat_area() {
 
 void update_stat_area() {
   if (eeprom_ok && !firmware_update_mode && !console_active) {
+
     draw_stat_area();
     if (disp_mode == DISP_MODE_PORTRAIT) {
       drawBitmap(p_as_x, p_as_y, stat_area.getBuffer(), stat_area.width(), stat_area.height(), DISPLAY_WHITE, DISPLAY_BLACK);
@@ -904,7 +963,12 @@ void draw_disp_area() {
     if (firmware_update_mode) disp_area.drawBitmap(0, p_by, bm_fw_update, disp_area.width(), 27, DISPLAY_WHITE, DISPLAY_BLACK);
   } else {
     if (!disp_ext_fb or bt_ssp_pin != 0) {
+
+
+
       if (radio_online && display_diagnostics) {
+
+
 
         disp_area.fillRect(0,8,disp_area.width(),37, DISPLAY_BLACK); disp_area.fillRect(0,37,disp_area.width(),27, DISPLAY_WHITE); 
 
@@ -979,6 +1043,7 @@ void draw_disp_area() {
         disp_area.setCursor(4, 5); disp_area.print(bt_devname);
 
       } else {
+
         if (device_signatures_ok()) {
           disp_area.drawBitmap(0, 0, bm_def_lc, disp_area.width(), 37, DISPLAY_WHITE, DISPLAY_BLACK);      
         } else {
@@ -988,6 +1053,8 @@ void draw_disp_area() {
         // display device ID beneath header
         disp_area.setFont(SMALL_FONT); disp_area.setTextWrap(false); disp_area.setCursor(13, 32); disp_area.setTextColor(DISPLAY_WHITE); disp_area.setTextSize(2);
         disp_area.printf("%02X%02X", bt_dh[14], bt_dh[15]);
+
+
       }
 
       if (!hw_ready || !device_firmware_ok()) {
@@ -1072,11 +1139,7 @@ void update_disp_area() {
 void display_recondition() {
   #if DISPLAY == OLED
     for (uint8_t iy = 0; iy < disp_area.height(); iy++) {
-      uint8_t rand_seg[] = {
-        static_cast<uint8_t>(random(256)), static_cast<uint8_t>(random(256)),
-        static_cast<uint8_t>(random(256)), static_cast<uint8_t>(random(256)),
-        static_cast<uint8_t>(random(256)), static_cast<uint8_t>(random(256)),
-        static_cast<uint8_t>(random(256)), static_cast<uint8_t>(random(256))};
+      unsigned char rand_seg [] = {random(0xFF),random(0xFF),random(0xFF),random(0xFF),random(0xFF),random(0xFF),random(0xFF),random(0xFF)};
       stat_area.drawBitmap(0, iy, rand_seg, 64, 1, DISPLAY_WHITE, DISPLAY_BLACK);
       disp_area.drawBitmap(0, iy, rand_seg, 64, 1, DISPLAY_WHITE, DISPLAY_BLACK);
     }
@@ -1106,6 +1169,7 @@ bool epd_blanked = false;
 #endif
 
 void update_display(bool blank = false) {
+
   display_updating = true;
   if (blank == true) {
     last_disp_update = millis()-disp_update_interval-1;
@@ -1146,6 +1210,7 @@ void update_display(bool blank = false) {
       #elif BOARD_MODEL != BOARD_TDECK && DISPLAY != EINK_3C && DISPLAY != EINK_BW
         display.clearDisplay();
         display.display();
+
       #else
         // TODO: Clear screen
       #endif
@@ -1188,6 +1253,7 @@ void update_display(bool blank = false) {
           last_epd_refresh = millis();
           epd_blanked = false;
         }
+
       #elif BOARD_MODEL != BOARD_TDECK
         display.display();
       #endif
@@ -1195,6 +1261,18 @@ void update_display(bool blank = false) {
       last_disp_update = millis();
     }
   }
+  //BD
+  // for screen refresh to stop greying out
+  #if BOARD_MODEL == BOARD_HELTEC_MESHP
+  if (++partials_since_full >= PARTIAL_LIMIT) {
+     // display.powerOff();              // stop gate bleed
+     //display.setFullWindow();
+    //display.display(false);           // GC16 full update (single flash)
+      partials_since_full = 0;
+  }
+  #endif
+
+  //BD
   display_updating = false;
 }
 

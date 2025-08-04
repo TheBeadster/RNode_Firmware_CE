@@ -10,12 +10,9 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-#pragma once
-#include <Arduino.h>
-
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+#include "board_config.h"
 #if MCU_VARIANT == MCU_ESP32
   #if HAS_BLUETOOTH == true
     #include "BluetoothSerial.h"
@@ -36,19 +33,19 @@
   BLEUart SerialBT(BLE_RX_BUF);
   BLEDis  bledis;
   BLEBas  blebas;
-  extern bool SerialBT_init;
+  bool SerialBT_init = false;
 #endif
 
 #define BT_PAIRING_TIMEOUT 35000
 #define BLE_FLUSH_TIMEOUT 20
-extern uint32_t bt_pairing_started;
+uint32_t bt_pairing_started = 0;
 
 #define BT_DEV_ADDR_LEN 6
 #define BT_DEV_HASH_LEN 16
-extern uint8_t dev_bt_mac[BT_DEV_ADDR_LEN];
-extern char bt_da[BT_DEV_ADDR_LEN];
-extern char bt_dh[BT_DEV_HASH_LEN];
-extern char bt_devname[11];
+uint8_t dev_bt_mac[BT_DEV_ADDR_LEN];
+char bt_da[BT_DEV_ADDR_LEN];
+char bt_dh[BT_DEV_HASH_LEN];
+char bt_devname[11];
 
 #if MCU_VARIANT == MCU_ESP32
   #if HAS_BLUETOOTH == true
@@ -176,7 +173,8 @@ extern char bt_devname[11];
     void bt_flush() { if (bt_state == BT_STATE_CONNECTED) { SerialBT.flush(); } }
 
     void bt_start() {
-      // Serial.println("BT start");
+      
+       //Serial.println("BT start");
       display_unblank();
       if (bt_state == BT_STATE_OFF) {
         bt_state = BT_STATE_ON;
@@ -196,6 +194,7 @@ extern char bt_devname[11];
     }
 
     bool bt_init() {
+      
       // Serial.println("BT init");
       bt_state = BT_STATE_OFF;
       if (bt_setup_hw()) {
@@ -300,7 +299,8 @@ extern char bt_devname[11];
 
     void bt_connect_callback(BLEServer *server) {
       uint16_t conn_id = server->getConnId();
-      // Serial.printf("Connected: %d\n", conn_id);
+      
+      //Serial.printf("Connected: %d\n", conn_id);
       display_unblank();
       ble_authenticated = false;
       if (bt_state != BT_STATE_PAIRING) { bt_state = BT_STATE_CONNECTED; }

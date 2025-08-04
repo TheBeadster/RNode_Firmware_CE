@@ -12,12 +12,13 @@
 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+//#define BOARD_MODEL BOARD_HELTEC_MESHP   // MeshPocket
+//BD
+#include "board_config.h"
+//BD
 #include <Arduino.h>
 #include <SPI.h>
 #include "Utilities.h"
-#define BOARD_MODEL BOARD_HELTEC_MESHP   // MeshPocket
-#include "Boards.h"
 
 #if MCU_VARIANT == MCU_NRF52
   #if BOARD_MODEL == BOARD_RAK4631 || BOARD_MODEL == BOARD_OPENCOM_XL
@@ -54,6 +55,21 @@
                 interface_pins[0][2]
                )
       };
+      //BD
+  #elif BOARD_MODEL == BOARD_HELTEC_MESHP
+    #define INTERFACE_SPI
+    SPIClass interface_spi[1] = {
+            // SX1262
+            SPIClass(
+               
+                // NRF_SPIM1,
+                NRF_SPIM1, 
+                interface_pins[0][3], 
+                interface_pins[0][1], 
+                interface_pins[0][2]
+               )
+      }; 
+     //BD
   #endif
 #endif
 
@@ -61,13 +77,7 @@
 // INTERFACE_SPI is only required on NRF52 platforms, as the SPI pins are set in the class constructor and not by a setter method.
 // Even if custom SPI interfaces are not needed, the array must exist to prevent compilation errors.
 #define INTERFACE_SPI
-// MeshPocket has only one radio → use SPIM0 and the pins you already defined
-SPIClass interface_spi[1] = {
-    SPIClass(NRF_SPIM0,               // hardware block
-             interface_pins[0][3],    // MISO  → 23
-             interface_pins[0][1],    // SCK   → 19
-             interface_pins[0][2])    // MOSI  → 22
-};
+SPIClass interface_spi[1];
 #endif
 
 FIFOBuffer serialFIFO;
@@ -145,6 +155,11 @@ void setup() {
       pinMode(PIN_VEXT_EN, OUTPUT);
       digitalWrite(PIN_VEXT_EN, HIGH);
       delay(100);
+    #elif BOARD_MODEL == BOARD_HELTEC_MESHP
+      delay(200);
+      pinMode(PIN_VEXT_EN, OUTPUT);
+      digitalWrite(PIN_VEXT_EN, HIGH);
+      delay(100);
     #endif
 
 
@@ -187,7 +202,7 @@ void setup() {
     boot_seq();
   #endif
 
-  #if BOARD_MODEL != BOARD_RAK4631 && BOARD_MODEL != BOARD_HELTEC_T114 && BOARD_MODEL != BOARD_TECHO && BOARD_MODEL != BOARD_T3S3 && BOARD_MODEL != BOARD_TBEAM_S_V1 && BOARD_MODEL != BOARD_OPENCOM_XL
+  #if BOARD_MODEL != BOARD_RAK4631 && BOARD_MODEL != BOARD_HELTEC_T114 && BOARD_MODEL != BOARD_HELTEC_MESHP && BOARD_MODEL != BOARD_TECHO && BOARD_MODEL != BOARD_T3S3 && BOARD_MODEL != BOARD_TBEAM_S_V1 && BOARD_MODEL != BOARD_OPENCOM_XL
   // Some boards need to wait until the hardware UART is set up before booting
   // the full firmware. In the case of the RAK4631/TECHO, the line below will wait
   // until a serial connection is actually established with a master. Thus, it
@@ -195,7 +210,9 @@ void setup() {
     while (!Serial);
   #endif
 
-  // Configure input and output pins
+
+
+ // Configure input and output pins
   #if HAS_INPUT
     input_init();
   #endif
@@ -245,6 +262,7 @@ void setup() {
 
   // Create and configure interface objects
   for (uint8_t i = 0; i < INTERFACE_COUNT; i++) {
+    
       switch (interfaces[i]) {
           case SX1262:
           {
@@ -319,6 +337,8 @@ void setup() {
     interface_obj[0]->reset();
     delay(100);
   #endif
+ 
+  
 
     // Check installed transceiver chip(s) and probe boot parameters. If any of
     // the configured modems cannot be initialised, do not boot
@@ -335,7 +355,9 @@ void setup() {
                 modems_installed = false;
                 break;
         }
+        
         if (selected_radio->preInit()) {
+
           modems_installed = true;
           #if HAS_INPUT
             // Skip quick-reset console activation
@@ -383,12 +405,15 @@ void setup() {
       // just run the serial poll loop instead.
       display_add_callback(process_serial);
     #elif DISPLAY == EINK_BW || DISPLAY == EINK_3C
+ 
       display_add_callback(process_serial); // todo: get this working with work_while_waiting again
     #endif
 
     display_unblank();
+
     disp_ready = display_init();
     if (disp_ready) update_display();
+    
   #endif
 
     #if HAS_PMU == true
@@ -610,12 +635,14 @@ void ISR_VECT receive_callback(uint8_t index, int packet_size) {
   last_rx = millis();
 }
 
+
 bool startRadio(RadioInterface* radio) {
   update_radio_lock(radio);
-  
   if (modems_installed && !console_active) {
+
     if (!radio->getRadioOnline()) {
         if (!radio->getRadioLock() && hw_ready) {
+
           if (!radio->begin()) {
             // The radio could not be started.
             // Indicate this failure over both the
@@ -660,6 +687,7 @@ bool startRadio(RadioInterface* radio) {
 }
 
 void stopRadio(RadioInterface* radio) {
+
   if (radio->getRadioOnline()) {
       radio->end();
       sort_interfaces();
@@ -837,8 +865,15 @@ void transmit(RadioInterface* radio, uint16_t size) {
 }
 
 void serial_callback(uint8_t sbyte) {
+  //BD
+  	/*			if (command < 0x10) Serial.print('0');
+        Serial.print(command, HEX);
+      */
+        //BD
   if (IN_FRAME && sbyte == FEND && 
             command == CMD_DATA) {
+     
+     
     IN_FRAME = false;
 
     if (interface < INTERFACE_COUNT) {
@@ -1011,12 +1046,17 @@ void serial_callback(uint8_t sbyte) {
       selected_radio = interface_obj[interface];
       if (bt_state != BT_STATE_CONNECTED) cable_state = CABLE_STATE_CONNECTED;
       if (sbyte == 0xFF) {
+
         kiss_indicate_radiostate(selected_radio);
+
       } else if (sbyte == 0x00) {
+
         stopRadio(selected_radio);
       } else if (sbyte == 0x01) {
+
         startRadio(selected_radio);
-      }
+
+       }
       interface = 0;
     } else if (command == CMD_ST_ALOCK) {
       if (sbyte == FESC) {
@@ -1425,6 +1465,7 @@ void validate_status() {
               hw_ready = true;
             } else {
               hw_ready = false;
+              Serial.write("Device init failed\r\n");
             }
           } else {
             hw_ready = false;
@@ -1680,6 +1721,53 @@ void sleep_now() {
         digitalWrite(PIN_VEXT_EN, LOW);
         digitalWrite(PIN_T114_TFT_BLGT, HIGH);
         digitalWrite(PIN_T114_TFT_EN, HIGH);
+
+      #elif BOARD_MODEL == BOARD_HELTEC_MESHP
+
+
+        // BD Meshpocket has no control over power everything just goes to sleep
+        // BD turn OF ADC bAT read?
+        // BD ADDIN telling eink to hibernate
+        //Serial.print("Meshp to sleep");
+
+          display.setFullWindow();
+          display.setRotation(3);
+          display.fillScreen(DISPLAY_WHITE);
+          
+          display.drawLine(2, 2, 250, 2, DISPLAY_BLACK);
+          display.drawLine(2, 124, 255, 124, DISPLAY_BLACK);
+          display.drawLine(2, 27, 255, 27, DISPLAY_BLACK);
+          display.drawLine(20, 54, 180, 54, DISPLAY_BLACK);
+          display.setTextColor(DISPLAY_BLACK);
+          display.setFont(NULL);               // default 5×7 or pick your GFX font
+          display.setCursor(14,6);
+          display.setTextSize(2);
+          display.print("Reticulum :  RNode");
+          display.setCursor(30, 39);
+          display.setTextSize(2);
+          display.print("Sleeping...");
+          display.setCursor(8,59 );
+          display.setTextSize(1);
+          display.print("User Button");
+          display.setCursor(8,68 );
+          display.print("   1 sec : Bluetooth on/off");
+          display.setCursor(8,78 );
+          display.print("  7 secs : Blutooth Pairing");
+          display.setCursor(8,88 );
+          display.print("> 8 secs : Sleep");
+          display.display(false);
+          display.hibernate();
+          display.setFont(SMALL_FONT);
+          display.setTextSize(2);
+          display.setCursor(5, 100);
+          display.printf("%02X%02X", bt_dh[14], bt_dh[15]);   // last two bytes of the BLE MAC
+//          display.setPartialWindow(0, 0, DISP_W, DISP_H);
+
+
+        // BD addin telling sx1262 to deep sleep
+          npset(0,0,0);
+          digitalWrite(PIN_VEXT_EN, LOW);
+
       #elif BOARD_MODEL == BOARD_TECHO
         for (uint8_t i = display_intensity; i > 0; i--) { analogWrite(pin_backlight, i-1); delay(1); }
         epd_black(true); delay(300); epd_black(true); delay(300); epd_black(false);
@@ -1703,26 +1791,48 @@ void button_event(uint8_t event, unsigned long duration) {
           #if HAS_BLUETOOTH || HAS_BLE
             bt_stop();
           #endif
+          //BD
+          Serial.write("Button : Console serial start");
+          //BD
           console_active = true;
+
           console_start();
         #endif
       } else if (duration > 5000) {
+        //BD
+        Serial.write("Button : Bluetooth pairing");
+        //BD
         #if HAS_BLUETOOTH || HAS_BLE
           if (bt_state != BT_STATE_CONNECTED) { bt_enable_pairing(); }
         #endif
       } else if (duration > 700) {
+        //BD
+        Serial.write("Button : Bluetooth pairing");
+        //BD
         #if HAS_SLEEP
           sleep_now();
         #endif
       } else {
+                //BD
+        Serial.print("Button : Bluetooth powered ");
+        //BD
         #if HAS_BLUETOOTH || HAS_BLE
         if (bt_state != BT_STATE_CONNECTED) {
+              //BD
+              Serial.print("ON/OFF : ");
+              //BD
           if (bt_state == BT_STATE_OFF) {
             bt_start();
             bt_conf_save(true);
+              //BD
+              Serial.print("ON : ");
+              //BD
           } else {
             bt_stop();
             bt_conf_save(false);
+             //BD
+             Serial.print("OFF : ");
+            //BD
           }
         }
         #endif

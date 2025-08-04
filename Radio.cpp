@@ -4,6 +4,9 @@
 // Modifications and additions copyright 2024 by Mark Qvist & Jacob Eva
 // Obviously still under the MIT license.
 
+//BD
+#include "board_config.h"
+//BD
 #include "Radio.hpp"
 #include "src/misc/ModemISR.h"
 
@@ -110,10 +113,14 @@ sx126x::sx126x(uint8_t index, SPIClass* spi, bool tcxo, bool dio2_as_rf_switch, 
 }
 
 bool sx126x::preInit() {
+  
+  //BD
+  // enables the radio  might need to make it Meshp specific
   pinMode(_ss, OUTPUT);
   digitalWrite(_ss, HIGH);
-  
-  // todo: check if this change causes issues on any platforms
+  //BD
+
+   // todo: check if this change causes issues on any platforms
   #if MCU_VARIANT == MCU_ESP32
   if (_sclk != -1 && _miso != -1 && _mosi != -1 && _ss != -1) {
     _spiModem->begin(_sclk, _miso, _mosi, _ss);
@@ -121,9 +128,12 @@ bool sx126x::preInit() {
     _spiModem->begin();
   }
   #else
-    _spiModem->begin();
+
+   _spiModem->begin();
+ 
   #endif
 
+   
   // check version (retry for up to 2 seconds)
   // TODO: Actually read version registers, not syncwords
   long start = millis();
@@ -132,16 +142,18 @@ bool sx126x::preInit() {
   while (((millis() - start) < 2000) && (millis() >= start)) {
       syncmsb = readRegister(REG_SYNC_WORD_MSB_6X);
       synclsb = readRegister(REG_SYNC_WORD_LSB_6X);
-      if ( uint16_t(syncmsb << 8 | synclsb) == 0x1424 || uint16_t(syncmsb << 8 | synclsb) == 0x4434) {
+
+     if ( uint16_t(syncmsb << 8 | synclsb) == 0x1424 || uint16_t(syncmsb << 8 | synclsb) == 0x4434) {
           break;
       }
       delay(100);
   }
-  if ( uint16_t(syncmsb << 8 | synclsb) != 0x1424 && uint16_t(syncmsb << 8 | synclsb) != 0x4434) {
-      return false;
-  }
 
-  _preinit_done = true;
+
+  if ( uint16_t(syncmsb << 8 | synclsb) != 0x1424 && uint16_t(syncmsb << 8 | synclsb) != 0x4434) {
+  return false;
+  }
+   _preinit_done = true;
   return true;
 }
 
@@ -353,15 +365,19 @@ void sx126x::calibrate_image(uint32_t frequency) {
 
 int sx126x::begin()
 {
-  reset();
+ reset();
 
   if (_busy != -1) { pinMode(_busy, INPUT); }
 
   if (!_preinit_done) {
     if (!preInit()) {
+
       return false;
     }
   }
+
+
+
 
   if (_rxen != -1) { pinMode(_rxen, OUTPUT); }
 
@@ -402,6 +418,7 @@ int sx126x::begin()
   _radio_online = true;
   return 1;
 }
+
 
 void sx126x::end()
 {
@@ -710,6 +727,8 @@ void sx126x::enableTCXO() {
     #elif BOARD_MODEL == BOARD_TBEAM_S_V1
       uint8_t buf[4] = {MODE_TCXO_1_8V_6X, 0x00, 0x00, 0xFF};
     #elif BOARD_MODEL == BOARD_HELTEC_T114
+      uint8_t buf[4] = {MODE_TCXO_1_8V_6X, 0x00, 0x00, 0xFF};
+    #elif BOARD_MODEL == BOARD_HELTEC_MESHP
       uint8_t buf[4] = {MODE_TCXO_1_8V_6X, 0x00, 0x00, 0xFF};
     #elif BOARD_MODEL == BOARD_E22_ESP32
       uint8_t buf[4] = {MODE_TCXO_1_8V_6X, 0x00, 0x00, 0xFF};
@@ -1105,7 +1124,7 @@ void sx127x::reset() {
 }
 
 int sx127x::begin() {
-    reset();
+  reset();
 
   sleep();
 
