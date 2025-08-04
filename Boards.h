@@ -14,8 +14,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //#define BOARD_MODEL BOARD_HELTEC_MESHP
 //#define BOARD_MODEL BOARD_HELTEC_MESHP
-#include "board_config.h"
-
 #include "Interfaces.h"
 #include "ROM.h"
 

@@ -12,10 +12,8 @@
 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#include "board_config.h"
 
 #include <Ed25519.h>
-
 #if MCU_VARIANT == MCU_ESP32
 #include "mbedtls/md.h"
 #include "esp_ota_ops.h"

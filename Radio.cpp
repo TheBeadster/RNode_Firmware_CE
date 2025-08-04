@@ -4,9 +4,6 @@
 // Modifications and additions copyright 2024 by Mark Qvist & Jacob Eva
 // Obviously still under the MIT license.
 
-//BD
-#include "board_config.h"
-//BD
 #include "Radio.hpp"
 #include "src/misc/ModemISR.h"
 

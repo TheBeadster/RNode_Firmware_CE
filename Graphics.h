@@ -12,7 +12,6 @@
 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-#include "board_config.h"
 
 const unsigned char bm_cable [] PROGMEM = {
    0x00, 0x00, 0x00, 0x1c, 0x00, 0x38, 0x07, 0xfc, 0x08, 0x38, 0x10, 0x1c, 0x10, 0x00, 0x08, 0x00, 

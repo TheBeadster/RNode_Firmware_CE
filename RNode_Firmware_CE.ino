@@ -13,9 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //#define BOARD_MODEL BOARD_HELTEC_MESHP   // MeshPocket
-//BD
-#include "board_config.h"
-//BD
+
 #include <Arduino.h>
 #include <SPI.h>
 #include "Utilities.h"
