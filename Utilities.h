@@ -743,7 +743,6 @@ void led_indicate_not_ready() {
     }
 #endif
 
-
 bool interface_bitrate_cmp(RadioInterface* p, RadioInterface* q) {
     long p_bitrate = p->getBitrate();
     long q_bitrate = q->getBitrate();
@@ -763,18 +762,6 @@ void serial_write(uint8_t byte) {
 		} else {
 		
 			SerialBT.write(byte);
-			  //BD  need bluettoh disconnected to use rNodeConf properly so this debug doesnt bother it
-		/*if (byte == 0xC0){
-					Serial.print(' ');				          // space-separated stream}
-				};
-				if (byteOLD ==0xC0 && byte == 0x00){
-					Serial.print("\r\n");
-				};
-				if (byte < 0x10) Serial.print('0');
-        Serial.print(byte, HEX);
-        byteOLD=byte;
-				*/
-      //BD
 			#if MCU_VARIANT == MCU_NRF52 && HAS_BLE
 	      // This ensures that the TX buffer is flushed after a frame is queued in serial.
 	      // serial_in_frame is used to ensure that the flush only happens at the end of the frame

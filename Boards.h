@@ -12,8 +12,6 @@
 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-//#define BOARD_MODEL BOARD_HELTEC_MESHP
-//#define BOARD_MODEL BOARD_HELTEC_MESHP
 #include "Interfaces.h"
 #include "ROM.h"
 
@@ -157,7 +155,6 @@
   #endif
 
   #define HAS_DISPLAY false
-  
   #define HAS_BLUETOOTH false
   #define HAS_BLE false
   #define HAS_TCXO false
@@ -1386,6 +1383,8 @@
               17, // pin_busy
               20, // pin_dio
               25, // pin_reset
+Search
+
               -1, // pin_txen
               -1, // pin_rxen
               -1  // pin_tcxo_enable
@@ -1407,6 +1406,7 @@
       #define DISPLAY_SCALE_OVERRIDE true
       #define DISPLAY_SCALE 1.90625
       #define DISPLAY_MODEL GxEPD2_213_B74   //meshtastic uses B74  
+      // MUST have the updated GxEPD2 library from here https://github.com/meshtastic/GxEPD2#inkhud 
       #define HAS_BLUETOOTH false
       #define HAS_BLE true
       #define HAS_CONSOLE false
@@ -1441,7 +1441,16 @@
       const int pin_led_rx = 35;
       const int pin_led_tx = 35;
 
-      // pins for LCMEN21R13ECC1  display using SSD1680 driver on Heltec Mesh Pocket
+
+     /*E-Ink display driver
+    - SSD1680
+    - Manufacturer: WISEVAST
+    - Model: LCMEN21R13ECC1
+    - Type: E-Ink display
+    - Size: 2.13 inch
+    - Resolution: 122px x 255px
+    - power is connected direct to the 3v3 line it sleeps via a SPI command
+       */
       const int pin_disp_cs    = 24;
       const int pin_disp_dc    = 31;
       const int pin_disp_reset = 36;
@@ -1449,7 +1458,7 @@
       const int pin_disp_sck   = 22;
       const int pin_disp_mosi  = 20;           
       const int pin_disp_miso  = -1;
-   //BD the eink is connected direct to the 3v3 line it sleeps via a SPI command
+     //BD the eink power is connected direct to the 3v3 line it sleeps via a SPI command
       const int pin_disp_en = -1;  
     
       #define INTERFACE_COUNT 1

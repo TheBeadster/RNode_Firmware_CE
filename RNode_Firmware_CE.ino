@@ -208,8 +208,6 @@ void setup() {
     while (!Serial);
   #endif
 
-
-
  // Configure input and output pins
   #if HAS_INPUT
     input_init();
@@ -454,6 +452,9 @@ void setup() {
 
   // Validate board health, EEPROM and config
   validate_status();
+  
+
+
 }
 
 void lora_receive(RadioInterface* radio) {
@@ -864,9 +865,9 @@ void transmit(RadioInterface* radio, uint16_t size) {
 
 void serial_callback(uint8_t sbyte) {
   //BD
-  	/*			if (command < 0x10) Serial.print('0');
-        Serial.print(command, HEX);
-      */
+  			//	if (command < 0x10) Serial.print('0');
+       // Serial.print(command, HEX);
+      
         //BD
   if (IN_FRAME && sbyte == FEND && 
             command == CMD_DATA) {
@@ -1724,7 +1725,7 @@ void sleep_now() {
 
 
         // BD Meshpocket has no control over power everything just goes to sleep
-        // BD turn OF ADC bAT read?
+        // BD turn OF ADC BAT read?
         // BD ADDIN telling eink to hibernate
         //Serial.print("Meshp to sleep");
 

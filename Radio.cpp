@@ -964,11 +964,12 @@ void sx126x::handleDio0Rise()
     uint8_t rxbuf[2] = {0};
     executeOpcodeRead(OP_RX_BUFFER_STATUS_6X, rxbuf, 2);
     int packetLength = rxbuf[0];
-
     if (_onReceive) {
         _onReceive(_index, packetLength);
     }
 }
+
+
 
 bool ISR_VECT sx126x::getPacketValidity() {
     uint8_t buf[2];

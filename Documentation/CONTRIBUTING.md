@@ -182,7 +182,7 @@ your MCU variant. Please search for the other definitions of `led_rx_on()` to
 find the correct section, then find the final section by searching for the
 comparison where `MCU_VARIANT` is checked for your MCU variant.
 
-You also need to add entries to the `setTxPower()` , `eeprom_product_valid()` and `eeprom_model_valid()` functions in the same file.
+You also need to add entries to the `setTxPower()`, `eeprom_product_valid()` and `eeprom_model_valid()` functions in the same file.
 
 In `setTxPower()`, you simply need to add an if statement for your model, e.g:
 ```
